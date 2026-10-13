@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HB Aki! // Mission 20</title>
+    <style>
+        @import url('https://googleapis.com');
+
+        :root {
+            --pastel-blue-dark: #0f172a;
+            --pastel-blue-main: #60a5fa;
+            --pastel-blue-light: #bfdbfe;
+            --tactical-cyan: #22d3ee;
+            --hud-glow: rgba(34, 211, 238, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #020617;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        /* Immersive Delta Force Battlefield Background Overlay */
+        .battlefield-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(2, 6, 23, 0.9)), 
+                        url('https://unsplash.com') no-repeat center center;
+            background-size: cover;
+            filter: saturate(0.6) contrast(1.1);
+            z-index: 1;
+            transform: scale(1.05);
+            animation: backgroundPulse 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes backgroundPulse {
+            0% { transform: scale(1.02) translate(0, 0); }
+            100% { transform: scale(1.08) translate(-5px, -5px); }
+        }
+
+        /* Scanlines and Vignette Effect */
+        .screen-fx {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 40%, rgba(2, 6, 23, 0.8) 100%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Tactical HUD Overlay */
+        .hud-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 1px solid rgba(34, 211, 238, 0.15);
+            pointer-events: none;
+            border-radius: 8px;
+            z-index: 10;
+        }
+
+        .hud-corner {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border: 3px solid var(--tactical-cyan);
+        }
+        .top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+        .top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+        .bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+        .bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+        .sys-status {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            color: var(--tactical-cyan);
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 8px var(--hud-glow);
+        }
+
+        /* Intro Gate Screen */
+        .intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #070a12;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s ease;
+        }
+
+        .intro-screen.hide {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.1);
+        }
+
+        .terminal-box {
+            text-align: center;
+            max-width: 400px;
+            padding: 40px 30px;
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            background: rgba(15, 23, 42, 0.85);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.1);
+        }
+
+        .alert-text {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--tactical-cyan);
+            font-size: 13px;
+            letter-spacing: 5px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .mission-title {
+            font-family: 'Orbitron', sans-serif;
+            color: white;
+            font-size: 34px;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .minimal-subtext {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--pastel-blue-main);
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 35px;
+            opacity: 0.8;
+        }
+
+        /* Main Birthday Card HUD Panel */
+        .card-container {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            width: 90%;
+            max-width: 460px;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px var(--hud-glow);
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            text-align: center;
+            z-index: 5;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card-container.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .game-tag {
+            font-family: 'Orbitron', sans-serif;
+            background: rgba(34, 211, 238, 0.15);
+            color: var(--tactical-cyan);
+            border: 1px solid var(--tactical-cyan);
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px 14px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: white;
+            font-size: 28px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        /* Message Display Terminal */
+        .message-box {
+            background: rgba(2, 6, 23, 0.85);
+            color: #cbd5e1;
+            padding: 24px;
+            border-radius: 6px;
+            min-height: 180px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.65;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--tactical-cyan);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
+            cursor: pointer;
+            transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;
+        }
+
+        .message-box.dismissed {
+            opacity: 0;
+            transform: scale(0.95);
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--tactical-cyan);
+            animation: blink 0.8s infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+            box-shadow: 0 0 8px var(--tactical-cyan);
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Action Buttons */
+        .btn {
+            font-family: 'Orbitron', sans-serif;
+            background: var(--pastel-blue-main);
+            color: #0f172a;
+            border: none;
+            padding: 14px 32px;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: var(--tactical-cyan);
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+        }
+
+        .btn-launch {
+            background: transparent;
+            border: 2px solid var(--tactical-cyan);
+            color: var(--tactical-cyan);
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+            border-radius: 4px;
+        }
+
+        .btn-launch:hover {
+            background: var(--tactical-cyan);
+            color: #0f172a;
+            box-shadow: 0 0 25px rgba(34, 211, 238, 0.6);
+        }
+
+        .btn-replay {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #94a3b8;
+        }
+
+        .btn-replay:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: white;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Environment Layer -->
+    <div class="battlefield-bg"></div>
+    <div class="screen-fx"></div>
+
+    <!-- Intro Mission Gate -->
+    <div class="intro-screen" id="intro-screen">
+        <div class="terminal-box">
+            <div class="alert-text">COMMS LINK ENCRYPTED</div>
+            <div class="mission-title">TACTICAL BRIEFING</div>
+            <div class="minimal-subtext">// Operation: Birthday</div>
+            <button class="btn btn-launch" onclick="acceptMission()">ACCEPT MISSION</button>
+        </div>
+    </div>
+
+    <!-- Tactical HUD Borders -->
+    <div class="hud-overlay">
+        <div class="hud-corner top-left"></div>
