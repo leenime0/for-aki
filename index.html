@@ -32,7 +32,6 @@
             perspective: 1000px;
         }
 
-        /* Immersive Delta Force Battlefield Background Overlay */
         .battlefield-bg {
             position: absolute;
             top: 0;
@@ -53,7 +52,6 @@
             100% { transform: scale(1.08) translate(-5px, -5px); }
         }
 
-        /* Scanlines and Vignette Effect */
         .screen-fx {
             position: absolute;
             top: 0;
@@ -65,7 +63,7 @@
             z-index: 2;
         }
 
-        /* Tactical HUD Overlay */
+        /* Fixed HUD overlay container so pointer clicks can leak through underneath */
         .hud-overlay {
             position: absolute;
             top: 20px;
@@ -73,9 +71,9 @@
             right: 20px;
             bottom: 20px;
             border: 1px solid rgba(34, 211, 238, 0.15);
-            pointer-events: none;
+            pointer-events: none !important;
             border-radius: 8px;
-            z-index: 10;
+            z-index: 1000;
         }
 
         .hud-corner {
@@ -100,7 +98,6 @@
             text-shadow: 0 0 8px var(--hud-glow);
         }
 
-        /* Intro Gate Screen */
         .intro-screen {
             position: fixed;
             top: 0;
@@ -161,7 +158,6 @@
             opacity: 0.8;
         }
 
-        /* Main Birthday Card HUD Panel */
         .card-container {
             background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(12px);
@@ -208,7 +204,6 @@
             letter-spacing: 1.5px;
         }
 
-        /* Message Display Terminal */
         .message-box {
             background: rgba(2, 6, 23, 0.85);
             color: #cbd5e1;
@@ -249,7 +244,6 @@
             50% { opacity: 0; }
         }
 
-        /* Action Buttons */
         .btn {
             font-family: 'Orbitron', sans-serif;
             background: var(--pastel-blue-main);
@@ -263,6 +257,8 @@
             transition: all 0.25s ease;
             letter-spacing: 2px;
             text-transform: uppercase;
+            position: relative;
+            z-index: 200;
         }
 
         .btn:hover {
@@ -300,11 +296,9 @@
 </head>
 <body>
 
-    <!-- Environment Layer -->
     <div class="battlefield-bg"></div>
     <div class="screen-fx"></div>
 
-    <!-- Intro Mission Gate -->
     <div class="intro-screen" id="intro-screen">
         <div class="terminal-box">
             <div class="alert-text">COMMS LINK ENCRYPTED</div>
@@ -314,6 +308,10 @@
         </div>
     </div>
 
-    <!-- Tactical HUD Borders -->
     <div class="hud-overlay">
         <div class="hud-corner top-left"></div>
+        <div class="hud-corner top-right"></div>
+        <div class="hud-corner bottom-left"></div>
+        <div class="hud-corner bottom-right"></div>
+        <div class="sys-status">SECURE CONNECT // LVL.20</div>
+    </div>
